@@ -23,12 +23,12 @@ class JsdocToTypeScript(object):
         self._vim.current.buffer[index] = object
 
     def convert_line(self, buffer_index, current_line):
-        regex = r"\*\s+(\@param|\@property)\s+\{([a-zA-Z0-{}9[\]=>(): |]+)\}\s+(\[?)([a-zA-Z0-9_.]+)\]?(.*)"
+        regex = r"\*\s+(\@param|\@property)\s+\{(?P<type>[a-zA-Z0-{}9[\]=>(): |.]+)\}\s+(?P<is_optional>\[?)(?P<name>[a-zA-Z0-9_.]+)\]?(?P<description>.*)"
         match = re.search(regex, current_line)
-        type_name = match.groups()[1]
-        is_optional = match.groups()[2].strip() == '['
-        name = match.groups()[3]
-        description = match.groups()[4].strip()
+        type_name = match.group('type')
+        is_optional = match.group('is_optional').strip() == '['
+        name = match.group('name')
+        description = match.group('description').strip()
         new_line = '\t' + name
         if is_optional:
             new_line += '?'
