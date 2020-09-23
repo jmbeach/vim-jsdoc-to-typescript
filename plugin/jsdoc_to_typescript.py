@@ -23,12 +23,12 @@ class JsdocToTypeScript(object):
         self._vim.current.buffer[index] = object
 
     def convert_line(self, buffer_index, current_line):
-        regex = r"\* \@property \{([a-zA-Z0-9[\] |]+)\} (\[?)([a-zA-Z0-9]+)\]?(.*)"
+        regex = r"\*\s+(\@param|\@property)\s+\{([a-zA-Z0-{}9[\]=>(): |]+)\}\s+(\[?)([a-zA-Z0-9_.]+)\]?(.*)"
         match = re.search(regex, current_line)
-        type_name = match.groups()[0]
-        is_optional = match.groups()[1].strip() == '['
-        name = match.groups()[2]
-        description = match.groups()[3].strip()
+        type_name = match.groups()[1]
+        is_optional = match.groups()[2].strip() == '['
+        name = match.groups()[3]
+        description = match.groups()[4].strip()
         new_line = '\t' + name
         if is_optional:
             new_line += '?'
@@ -44,7 +44,7 @@ class JsdocToTypeScript(object):
         line = self._vim.current.line
         buffer_index = self.get_buffer_index(line)
         current_line = self._vim.current.buffer[buffer_index];
-        while '@property' in current_line and buffer_index < len(self._vim.current.buffer):
+        while ('@property' in current_line or '@param' in current_line) and buffer_index < len(self._vim.current.buffer):
             buffer_index = self.convert_line(buffer_index, current_line)
             if buffer_index < len(self._vim.current.buffer):
                 current_line = self._vim.current.buffer[buffer_index]
